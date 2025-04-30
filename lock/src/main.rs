@@ -30,6 +30,7 @@ fn main() {
     let files_list = std::fs::read_dir(&current_dir).unwrap();
 
     for file in files_list {
+
         let file = file.unwrap();
         let path = file.path();
 
@@ -54,9 +55,7 @@ fn main() {
             println!("File {} is already encrypted. Skipping...", path.display());
             continue;
         }
-
-
-        println!("File: {}", path.display());
+        
         encrypt_file(&path, password);
         
     }
