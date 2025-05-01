@@ -1,23 +1,22 @@
 # LockOn
 
-LockOn is a file encryption tool written in Rust. It allows you to encrypt files in the current directory using AES-256-GCM encryption. The program ensures that files are securely encrypted and renamed with a `.locked` extension.
+LockOn is a file encryption tool written in Rust. It allows you to encrypt files in a directory using AES-256-GCM symetric encryption. The program ensures that files are securely encrypted.
 
 ## Features
 
 - Encrypts files using AES-256-GCM encryption.
 - Skips files larger than 32 MB.
 - Prevents re-encrypting already encrypted files.
-- Excludes the executable file from encryption.
 
 ## Usage
 
 Run the program with the following command:
 
 ```bash
-./lock <dir> <password>
+./lock <directory> <password>
 ```
 
-This will encrypt all eligible files in the current directory.
+This will encrypt all eligible files in the specified directory.
 
 ## How It Works
 
@@ -31,8 +30,9 @@ This will encrypt all eligible files in the current directory.
 
 ## Decryption
 
-To decrypt files, you can create a complementary program (e.g., `unlock`) that reverses the encryption process. A basic structure for this is already included in the `unlock` directory.
+To decrypt files, you can use a complementary program (e.g., `unlock`) that reverses the encryption process with the key used for encryption.
 
 ## Disclaimer
 
-This program is provided as-is without any guarantees. Use it at your own risk.
+This program is provided as-is without any guarantees. It might screw you up use it at your own risk.
+*Dont forget the password there is no "Forgot my password" if you did good luck trying to recover them*
